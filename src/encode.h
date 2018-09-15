@@ -11,6 +11,12 @@
 void EncodeConstruct();
 
 /**
+ * Retorna la representación en int del char
+ * en la tabla.
+ */
+int DecodeChar(char toDecode);
+
+/**
  * Retorna la conversión en Base64 de la entrada.
  */
 char* Encode(char* toEncode);

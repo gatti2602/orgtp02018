@@ -83,10 +83,12 @@ enum ParameterState {
 }
  */
 
+/*
+ * Función de conveniencia.
+ */
 void executeEncode(File* input, File* output) {
 	FileOpenForRead(input);
 	int ichar = fgetc(input->file);
-	//printf("char: %d",ichar);
 
 	FileOpenForWrite(output);
 
@@ -115,6 +117,9 @@ void executeEncode(File* input, File* output) {
 	FileClose(output);
 }
 
+/*
+ * Función de conveniencia.
+ */
 void executeDecode(File* input, File* output) {
 	FileOpenForRead(input);
 	int ichar = fgetc(input->file);

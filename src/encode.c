@@ -14,10 +14,27 @@ static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'w', 'x', 'y', 'z', '0', '1', '2', '3',
                                 '4', '5', '6', '7', '8', '9', '+', '/'};
 
+static int encoding_table_size = 64;
+
+/**
+ * Retorna la representación del char en la tabla.
+ * pre: character es válido(pertenece a la tabla)
+ * ó es el caracter '='.
+ * post: retorna la representación(int) del character
+ * en la tabla encoding.
+ *
+ */
 int decodeChar(char character){
 	int i = 0;
-	for(i;i<)
+	for(i;i<encoding_table_size;i++){
+		if(encoding_table[i] == character){
+			return i;
+			break;
+		}
+	}
+	return 0;
 }
+
 /**
  * Retorna los 3 caracteres recibidos en el buffer en base64.
  * Pre: el buffer contiene al menos 1 caracter.
@@ -78,16 +95,16 @@ char* Encode(char* buffer){
  * Post: retorna un buffer de 3 byte con los caracteres en ASCII.
  */
 char* Decode(char* charsBase64){
-	unsigned char char1 = charsBase64[0];
-	unsigned char char2 = charsBase64[1];
-	unsigned char char3 = charsBase64[2];
-	unsigned char char4 = charsBase64[3];
+	unsigned char char1 = decodeChar(charsBase64[0]);
+	unsigned char char2 = decodeChar(charsBase64[1]);
+	unsigned char char3 = decodeChar(charsBase64[2]);
+	unsigned char char4 = decodeChar(charsBase64[3]);
 
 	unsigned char* return_buff = (char*)malloc(sizeof(char)*3);
 
 	unsigned char char1_aux = char1 << 2;
-	//Tomo los 2 ultimos bites de char2
-	unsigned char char2_aux = char2 >> 6;
+	//Tomo los 2 ultimos bits de char2
+	unsigned char char2_aux = char2 >> 4;
 	char1_aux = char1_aux | char2_aux;
 	return_buff[0] = char1_aux;
 
