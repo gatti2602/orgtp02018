@@ -1,0 +1,1 @@
+gcc -Wall -pedantic -Werror -O0 -o myexec main.c command.c file.c
