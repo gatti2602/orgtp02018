@@ -8,36 +8,29 @@
 #include <stdio.h>
 
 typedef struct{
-    char* route;
     FILE* file;
     char eof;
 } File;
 
 /**
- * Construye el TDA. Debe llamarse al principio.
+ * Construye el TDA.
  * Post: TDA construido
  */
-void FileConstruct(File* f);
+void FileCreate(File *f);
 
 /**
- * Inicializa el tda con la ruta del archivo a manejar.
- * devuelve -1 en caso de error o 0 si funciona correctamente.
- * Pre: Ruta Valida
- * Post: Puntero a archivo valido
- */
-char FileInit(File* file, const char* route);
-
-/*
  * Abre un File, devuelve 0 (NULL) si falla
- * Pre: Ptr a File Inicializado
+ * Pre: Ptr a File Inicializado ,
+ *      Ruta a archivo, si es 0 (NULL) utiliza stdin
  */
-int FileOpenForRead(File* file);
+char FileOpenForRead(File* file, const char* route);
 
-/*
+/**
  * Abre un File, devuelve 0 (NULL) si falla
- * Pre: Ptr a File Inicializado
+ * Pre: Ptr a File Inicializado ,
+ *      Ruta a archivo, si es 0 (NULL) utiliza stdout
  */
-int FileOpenForWrite(File* file);
+char FileOpenForWrite(File* file, const char* route);
 
 /*
  * Cierra archivo abierto
@@ -46,12 +39,12 @@ int FileOpenForWrite(File* file);
 int FileClose(File* file);
 
 /*
- * Lee el archivo abierto, solo un chunk de 64 bytes
+ * Lee el archivo abierto, solo un chunk de length bytes
  * Pre: Archivo abierto en modo lectura buffer de tamaño mayor o igual
- * a 64 bytes. Devuelve cantidad de bytes leidos.
+ * a length bytes. Devuelve cantidad de bytes leidos.
  * Post: Se actualiza Flag EOF en tda File
  */
-unsigned int FileReadChunk(File* file, unsigned char* buffer);
+unsigned int FileRead(File *file, unsigned char *buffer, unsigned int length);
 
 /*
  * Escribe length posiciones del buffer en el archivo file
@@ -59,15 +52,11 @@ unsigned int FileReadChunk(File* file, unsigned char* buffer);
  * lo menos length posiciones
  * Post: Informacion grabada en el archivo.
  */
-void FileWriteChunk(File* file, unsigned char* buffer, unsigned int length);
+void FileWrite(File* file, unsigned char* buffer, unsigned int length);
 /*
  * Chequea Flag EOF, devuelve 1 si se alcanzo el EOF y 0 sino.
  */
 int FileEofReached(File* file);
-/*
- * Libera recursos alocados en tda
- * Pre: tda inicializado
- */
-void FileDestroy(File* file);
+
 
 #endif //TP0_FILE_H

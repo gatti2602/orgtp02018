@@ -10,14 +10,16 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <getopt.h>
 
 #include "command.h"
 #include "file.h"
 #include "encode.h"
 
-enum ParameterState {
+/*enum ParameterState {
 	 OKEY = 0, INCORRECT_QUANTITY_PARAMS = 1, INCORRECT_MENU = 2, ERROR_FILE = 3, ERROR_MEMORY = 4
 };
+*/
 
 /*
  * static char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -29,21 +31,6 @@ enum ParameterState {
                                 'w', 'x', 'y', 'z', '0', '1', '2', '3',
                                 '4', '5', '6', '7', '8', '9', '+', '/'};
  */
-/* TODO: Cambiar options por esto:
-
- int main(int argc, char* argv[]) {
-    static struct option long_options[] = {
-            {"input",     required_argument, NULL,  'i'}
-    };
-    int opt;
-    int opt_index = 0;
-    while((opt = getopt_long(argc, argv, "i:o:a:h", long_options,&opt_index)) != -1){
-        printf("%c: %s\n", opt, optarg);
-    }
-    return 0;
-}
-
-*/
 
 /*
  * char* encode(char* buffer){
@@ -86,6 +73,7 @@ enum ParameterState {
 /*
  * Función de conveniencia.
  */
+/*
 void executeEncode(File* input, File* output) {
 	FileOpenForRead(input);
 	int ichar = fgetc(input->file);
@@ -116,10 +104,11 @@ void executeEncode(File* input, File* output) {
 	FileClose(input);
 	FileClose(output);
 }
-
+*/
 /*
  * Función de conveniencia.
  */
+/*
 void executeDecode(File* input, File* output) {
 	FileOpenForRead(input);
 	int ichar = fgetc(input->file);
@@ -146,39 +135,52 @@ void executeDecode(File* input, File* output) {
 		FileClose(input);
 		FileClose(output);
 }
+*/
 
 int main(int argc, char** argv) {
-    if(argc >= 2) {
-        File input, output;
-        FileConstruct(&input);
-        FileConstruct(&output);
-        char error = FALSE;
 
-        //Procesa las opciones de comando
-        for (unsigned int i = 1; i < (argc - 1); ++i) {
-            if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--input") == 0) {
-                ++i;
-                if (CommandInput(&input, argv[i]) == ERROR)
-                    error = TRUE;
-            } else if (strcmp(argv[i], "-o") == 0 ||
-                       strcmp(argv[i], "--output") == 0) {
-                ++i;
-                if (CommandOutput(&output, argv[i]) == ERROR)
-                    error = TRUE;
-            } //TODO: Agregar comando -a encode/decode
+    struct option arg_long[] = {
+            {"input",   required_argument,  NULL,  'i'},
+            {"output",  required_argument,  NULL,  'o'},
+            {"action",  required_argument,  NULL,  'a'},
+            {"help",    no_argument,        NULL,  'h'},
+            {"version", no_argument,        NULL,  'V'},
+    };
+    char arg_opt_str[] = "i:o:a:hV";
+    int arg_opt;
+    int arg_opt_idx = 0;
 
-            if (error)
+    CommandOptions cmd_opt;
+    CommandCreate(&cmd_opt);
+
+    while((arg_opt =
+            getopt_long(argc, argv, arg_opt_str, arg_long,&arg_opt_idx)) != -1){
+        switch(arg_opt){
+        	case 'i':
+        		CommandSetInput(&cmd_opt, optarg);
+        		break;
+        	case 'o':
+                CommandSetOutput(&cmd_opt, optarg);
                 break;
+        	case 'h':
+        		CommandHelp();
+        		break;
+        	case 'V':
+        		CommandVersion();
+        		break;
+        	case 'a':
+        	    CommandSetEncodeOpt(&cmd_opt, optarg);
+				break;
+        	default:
+        		CommandSetError(&cmd_opt);
+        		CommandHelp();
+        		break;
         }
-
-        if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)
-            CommandHelp();
-
-        //executeEncode(&input, &output);
-        executeDecode(&input, &output);
-
-        FileDestroy(&input);
-        FileDestroy(&output);
     }
+    if(!CommandHasError(&cmd_opt))
+        CommandProcess(&cmd_opt);
+    else
+        return 1;
     return 0;
+
 }
