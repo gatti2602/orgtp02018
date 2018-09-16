@@ -104,7 +104,7 @@ void executeEncode(File* input, File* output) {
 	FileClose(input);
 	FileClose(output);
 }
-
+*/
 /*
  * Función de conveniencia.
  */

@@ -81,7 +81,7 @@ char CommandProcess(CommandOptions *opt) {
 
 char _CommandEncodeDecode(CommandOptions *opt) {
     //TODO ajustar tamaño de buffer
-    char buffer[50];
+    unsigned char buffer[50];
     unsigned int length = 50;
 
     while(!FileEofReached(&opt->input)){
