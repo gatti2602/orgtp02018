@@ -80,5 +80,15 @@ char CommandProcess(CommandOptions *opt) {
 }
 
 char _CommandEncodeDecode(CommandOptions *opt) {
-    return 0;
+    //TODO ajustar tamaño de buffer
+    char buffer[50];
+    unsigned int length = 50;
+
+    while(!FileEofReached(&opt->input)){
+        unsigned int read = FileRead(&opt->input, buffer, length);
+        //TODO: Implementar operacion de encode/decode
+        FileWrite(&opt->output, buffer, read);
+    }
+
+    return opt->error;
 }

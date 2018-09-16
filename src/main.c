@@ -161,6 +161,7 @@ int main(int argc, char** argv) {
         		break;
         	case 'o':
                 CommandSetOutput(&cmd_opt, optarg);
+                break;
         	case 'h':
         		CommandHelp();
         		break;

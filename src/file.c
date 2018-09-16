@@ -2,10 +2,8 @@
 // Created by gatti2602 on 11/09/18.
 //
 
-#define ERROR 0
-#define OK 1
-#define CHUNK 64
-
+#define ERROR 1
+#define OK 0
 
 #include "file.h"
 #include<stdlib.h>
@@ -58,12 +56,12 @@ int FileClose(File* file){
     return OK;
 }
 
-unsigned int FileReadChunk(File* file, unsigned char* buffer) {
+unsigned int FileRead(File *file, unsigned char *buffer, unsigned int length) {
     unsigned int result = 0;
     if(!FileEofReached(file)){
         // El tamaño de un chunk no debe superar el tamaño de un unsigned int
-        result = (unsigned int) fread(buffer, sizeof(char), CHUNK, file->file);
-        if(feof(file->file)) //TODO: Chequear si esto esta correcto
+        result = (unsigned int) fread(buffer, sizeof(char), length, file->file);
+        if(feof(file->file))
             file->eof = 1;	//Setea Flag EOF
     }
     return result;
@@ -73,6 +71,6 @@ int FileEofReached(File* file){
     return file->eof;
 }
 
-void FileWriteChunk(File* file, unsigned char* buffer, unsigned int length) {
+void FileWrite(File* file, unsigned char* buffer, unsigned int length) {
     fwrite(buffer, sizeof(char), length, file->file);
 }
