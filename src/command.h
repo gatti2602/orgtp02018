@@ -8,6 +8,47 @@
 
 #include "file.h"
 
+#define CMD_ENCODE 1;
+#define CMD_DECODE 0;
+#define FALSE 0
+#define TRUE 1
+
+typedef struct {
+    File input;
+    File output;
+    const char* input_route;
+    const char* output_route;
+    char error;
+    char encode_opt;
+} CommandOptions;
+
+/**
+ * Inicializa TDA CommandOptions
+ * Pre: Puntero a Command Options escribible
+ * Post: CommandOptions Inicializados a valores por default
+ * Valores default:
+ *      input: stdin
+ *      output stdout
+ *      error: FALSE
+ *      encode_opt: decode
+ */
+void CommandCreate(CommandOptions* opt);
+
+/**
+ * Setea ruta de entrada
+ * Pre: ruta valida
+ * Post: ruta lista para abrir file
+ */
+void CommandSetInput(CommandOptions* opt, const char* input);
+
+/**
+ * Setea ruta de salida
+ * Pre: ruta valida
+ * Post: ruta lista para abrir file
+ */
+void CommandSetOutput(CommandOptions* opt, const char* output);
+
+
 /**
  * Help Command
  * Imprime por salida estandar los distintos comandos posibles.
@@ -17,21 +58,11 @@
 void CommandHelp();
 
 /**
- * Procesa comando de input.
- * Devuelve 1 si ok 0 si error
- * Pre: input es un file pointer sin abrir
- *      route es una ruta valida
- * Post: input apunta a ruta indicada y esta listo para abrir
+ * Version Command
+ * Imprime por salida estandar la version del codigo
+ * Pre: N/A
+ * Post: N/A
  */
-char CommandInput(File* input, const char* route);
-
-/**
- * Procesa comando de output
- * Devuelve 0 si ok -1 si error
- * Pre: output es un file pointer sin abrir
- *      route es una ruta valida
- * Post: output apunta a ruta indicada y esta listo para abrir
- */
-char CommandOutput(File* output, char* route);
+void CommandVersion();
 
 #endif //TP0_COMMAND_H

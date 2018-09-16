@@ -8,36 +8,29 @@
 #include <stdio.h>
 
 typedef struct{
-    char* route;
     FILE* file;
     char eof;
 } File;
 
 /**
- * Construye el TDA. Debe llamarse al principio.
+ * Construye el TDA.
  * Post: TDA construido
  */
-void FileConstruct(File* f);
+void FileCreate(File *f);
 
 /**
- * Inicializa el tda con la ruta del archivo a manejar.
- * devuelve -1 en caso de error o 0 si funciona correctamente.
- * Pre: Ruta Valida
- * Post: Puntero a archivo valido
- */
-char FileInit(File* file, const char* route);
-
-/*
  * Abre un File, devuelve 0 (NULL) si falla
- * Pre: Ptr a File Inicializado
+ * Pre: Ptr a File Inicializado ,
+ *      Ruta a archivo, si es 0 (NULL) utiliza stdin
  */
-int FileOpenForRead(File* file);
+int FileOpenForRead(File* file, const char* route);
 
-/*
+/**
  * Abre un File, devuelve 0 (NULL) si falla
- * Pre: Ptr a File Inicializado
+ * Pre: Ptr a File Inicializado ,
+ *      Ruta a archivo, si es 0 (NULL) utiliza stdout
  */
-int FileOpenForWrite(File* file);
+int FileOpenForWrite(File* file, const char* route);
 
 /*
  * Cierra archivo abierto

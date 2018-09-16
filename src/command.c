@@ -20,10 +20,23 @@ void CommandHelp(){
     printf("  tp0 -a decode\n");
 }
 
-char CommandInput(File* input, const char* route){
-    return FileInit(input,route);
+void CommandVersion() {
+    printf("Version: 0.1\n");
 }
 
-char CommandOutput(File* output, char* route){
-    return FileInit(output,route);
+void CommandCreate(CommandOptions *opt) {
+    FileCreate(&opt->input);
+    FileCreate(&opt->output);
+    opt->error = FALSE;
+    opt->encode_opt = CMD_DECODE;
+    opt->input_route = 0;
+    opt->output_route = 0;
+}
+
+void CommandSetInput(CommandOptions *opt, const char *input) {
+    opt->input_route = input;
+}
+
+void CommandSetOutput(CommandOptions *opt, const char *output) {
+    opt->output_route = output;
 }
