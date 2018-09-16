@@ -10,43 +10,52 @@
 #include "file.h"
 #include<stdlib.h>
 #include<string.h>
+#include <errno.h>
 
 void FileCreate(File *file){
     file->file = 0;
     file->eof = 0;
 }
 
-int FileOpenForRead(File* file, const char *route ){
+char FileOpenForRead(File* file, const char *route ){
     if(route == NULL) {
         file->file = stdin;
     } else {
         file->file = fopen(route, "r");
-        if (file->file == NULL)
+        if (file->file == NULL) {
+            int err = errno;
+            fprintf(stderr, "File Open Error; %s\n", strerror(err));
             return ERROR;
+        }
     }
     return OK;
 }
 
-int FileOpenForWrite(File* file, const char *route ) {
+char FileOpenForWrite(File* file, const char *route ) {
     if(route == NULL) {
         file->file = stdout;
     } else {
         file->file = fopen(route, "w");
-        if (file->file == NULL)
+        if (file->file == NULL) {
+            int err = errno;
+            fprintf(stderr, "File Open Error; %s\n", strerror(err));
             return ERROR;
+        }
     }
     return OK;
 }
 
 int FileClose(File* file){
-    if(file->file == 0)
+    if(file->file == stdin || file->file == stdout)
         return OK;
 
     int result = fclose(file->file);
-    if (result == EOF)
+    if (result == EOF){
+        int err = errno;
+        fprintf(stderr, "File Close Error; %s\n", strerror(err));
         return ERROR;
-    else
-        return OK;
+    }
+    return OK;
 }
 
 unsigned int FileReadChunk(File* file, unsigned char* buffer) {

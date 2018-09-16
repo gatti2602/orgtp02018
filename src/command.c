@@ -58,11 +58,27 @@ char CommandHasError(CommandOptions *opt) {
     return opt->error;
 }
 
-char CommandProcess(CommandOptions *opt) {
-    //TODO Implementar
-    return 0;
-}
-
 void CommandSetError(CommandOptions *opt) {
     opt->error = TRUE;
+}
+
+char CommandProcess(CommandOptions *opt) {
+    opt->error = FileOpenForRead(&opt->input, opt->input_route);
+
+    if(!opt->error)
+        opt->error = FileOpenForWrite(&opt->output, opt->output_route);
+
+    if(!opt->error){
+        opt->error = _CommandEncodeDecode(opt);
+        FileClose(&opt->input);
+        FileClose(&opt->output);
+    }
+    else {
+        FileClose(&opt->input);
+    }
+    return opt->error;
+}
+
+char _CommandEncodeDecode(CommandOptions *opt) {
+    return 0;
 }

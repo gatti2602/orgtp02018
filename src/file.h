@@ -23,14 +23,14 @@ void FileCreate(File *f);
  * Pre: Ptr a File Inicializado ,
  *      Ruta a archivo, si es 0 (NULL) utiliza stdin
  */
-int FileOpenForRead(File* file, const char* route);
+char FileOpenForRead(File* file, const char* route);
 
 /**
  * Abre un File, devuelve 0 (NULL) si falla
  * Pre: Ptr a File Inicializado ,
  *      Ruta a archivo, si es 0 (NULL) utiliza stdout
  */
-int FileOpenForWrite(File* file, const char* route);
+char FileOpenForWrite(File* file, const char* route);
 
 /*
  * Cierra archivo abierto

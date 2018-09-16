@@ -89,4 +89,13 @@ void CommandHelp();
  */
 void CommandVersion();
 
+/**
+ * Recibe los archivos abiertos y debe ejecutar la operacion de codificacion
+ * Pre: opt->input posee el stream de entrada
+ *      opt->output posee el stream de salida
+ *      opt->encode_opt posee la opcion de codificacion
+ * Post: Datos procesados y escritos en el stream, si error devuelve 0, sino 1.
+ */
+char _CommandEncodeDecode(CommandOptions *opt);
+
 #endif //TP0_COMMAND_H
