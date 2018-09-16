@@ -48,6 +48,30 @@ void CommandSetInput(CommandOptions* opt, const char* input);
  */
 void CommandSetOutput(CommandOptions* opt, const char* output);
 
+/**Setea Command Option
+ * Pre: opt inicializado
+ * Post: Setea el encoding.
+ *      Si string no es encode/decode setea opt error flag.
+ */
+void CommandSetEncodeOpt(CommandOptions* opt, const char* encode_opt);
+
+/**
+ * Devuelve el flag de error
+ */
+char CommandHasError(CommandOptions *opt);
+
+/**
+ * Indica que hubo un error
+ */
+void CommandSetError(CommandOptions *opt);
+
+/**
+ * Ejecuta el comando
+ * Pre: Asume parametros previamente validados y ok
+ * Post: Ejecuta el comando generando la salida esperada
+ *       Devuelve 0 si error y 1 si OK.
+ */
+char CommandProcess(CommandOptions* opt);
 
 /**
  * Help Command

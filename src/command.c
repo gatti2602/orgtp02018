@@ -40,3 +40,29 @@ void CommandSetInput(CommandOptions *opt, const char *input) {
 void CommandSetOutput(CommandOptions *opt, const char *output) {
     opt->output_route = output;
 }
+
+void CommandSetEncodeOpt(CommandOptions *opt, const char *encode_opt) {
+    if(strcmp(encode_opt,"encode") == 0){
+        opt->encode_opt = CMD_ENCODE;
+    } else {
+        if(strcmp(encode_opt,"decode") == 0) {
+            opt->encode_opt = CMD_DECODE;
+        } else {
+            fprintf(stderr, "Encoding option should be encode/decode");
+            opt->error = TRUE;
+        }
+    }
+}
+
+char CommandHasError(CommandOptions *opt) {
+    return opt->error;
+}
+
+char CommandProcess(CommandOptions *opt) {
+    //TODO Implementar
+    return 0;
+}
+
+void CommandSetError(CommandOptions *opt) {
+    opt->error = TRUE;
+}

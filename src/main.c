@@ -136,22 +136,6 @@ void executeDecode(File* input, File* output) {
 		FileClose(output);
 }
 */
-/* TODO: Cambiar options por esto:
-
- int main(int argc, char* argv[]) {
-    static struct option long_options[] = {
-            {"input",     required_argument, NULL,  'i'}
-    };
-    int opt;
-    int opt_index = 0;
-    while((opt = getopt_long(argc, argv, "i:o:a:h", long_options,&opt_index)) != -1){
-        printf("%c: %s\n", opt, optarg);
-    }
-    return 0;
-}
-
-*/
-
 
 int main(int argc, char** argv) {
 
@@ -172,7 +156,7 @@ int main(int argc, char** argv) {
     while((arg_opt =
             getopt_long(argc, argv, arg_opt_str, arg_long,&arg_opt_idx)) != -1){
         switch(arg_opt){
-        	case 'i': //input file
+        	case 'i':
         		CommandSetInput(&cmd_opt, optarg);
         		break;
         	case 'o':
@@ -184,24 +168,18 @@ int main(int argc, char** argv) {
         		CommandVersion();
         		break;
         	case 'a':
-				if(strcmp(optarg,"encode") == 0){
-					cmd_opt.encode_opt = CMD_ENCODE;
-				} else {
-					if(strcmp(optarg,"decode") == 0) {
-						cmd_opt.encode_opt = CMD_DECODE;
-					} else {
-						fprintf(stderr, "Encoding option should be encode/decode");
-						cmd_opt.error = TRUE;
-					}
-				}
+        	    CommandSetEncodeOpt(&cmd_opt, optarg);
 				break;
         	default:
-        		cmd_opt.error = TRUE;
+        		CommandSetError(&cmd_opt);
         		CommandHelp();
         		break;
         }
     }
-
+    if(!CommandHasError(&cmd_opt))
+        CommandProcess(&cmd_opt);
+    else
+        return 1;
     return 0;
 
 }
