@@ -21,7 +21,7 @@ char FileOpenForRead(File* file, const char *route ){
     if(route == NULL) {
         file->file = stdin;
     } else {
-        file->file = fopen(route, "r");
+        file->file = fopen(route, "rb");
         if (file->file == NULL) {
             int err = errno;
             fprintf(stderr, "File Open Error; %s\n", strerror(err));
@@ -35,7 +35,7 @@ char FileOpenForWrite(File* file, const char *route ) {
     if(route == NULL) {
         file->file = stdout;
     } else {
-        file->file = fopen(route, "w");
+        file->file = fopen(route, "wb");
         if (file->file == NULL) {
             int err = errno;
             fprintf(stderr, "File Open Error; %s\n", strerror(err));
