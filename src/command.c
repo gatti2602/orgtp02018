@@ -3,6 +3,8 @@
 //
 
 #include "command.h"
+#include "encode.h"
+#include <string.h>
 
 void CommandHelp(){
     printf("Options:\n");
