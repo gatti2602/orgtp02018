@@ -1,9 +1,9 @@
 //
 // Created by lucasveron 14/09/18
 //
-#include <stdlib.h>
 
 #define BASE64_END '='
+#define DECODE_ERROR 100
 
 static unsigned char encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                          'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
@@ -30,7 +30,9 @@ unsigned char DecodeChar(char character){
 			return i;
 		}
 	}
-	return 0;
+    if (character == '=')
+        return 0;
+    return DECODE_ERROR;
 }
 
 void Encode(const unsigned char* buffer, unsigned int length, unsigned char* output){
@@ -80,32 +82,33 @@ void Encode(const unsigned char* buffer, unsigned int length, unsigned char* out
 }
 
 /**
- * Retorna el decode de 4 caracteres en base64.
- * Pre: el buffer contiene 4 caracteres.
- * Post: retorna un buffer de 3 byte con los caracteres en ASCII.
+ * Retorna un buffer de 3 aracteres con el decode de 4 caracteres en base64.
+ * Pre: el buffer input contiene 4 caracteres. El buffer output tiene por lo menos 3 caracteres
+ * Post: retorna un buffer de 3 byte con los caracteres en ASCII. retorna 0 si error 1 si ok
  */
-char* Decode(char* charsBase64){
-	unsigned char char1 = DecodeChar(charsBase64[0]);
-	unsigned char char2 = DecodeChar(charsBase64[1]);
-	unsigned char char3 = DecodeChar(charsBase64[2]);
-	unsigned char char4 = DecodeChar(charsBase64[3]);
+unsigned char Decode(unsigned char *buf_input, unsigned char *buf_output) {
+    unsigned char chars[4];
 
-	char* return_buff = (char*)malloc(sizeof(char)*3);
+    for (unsigned int i = 0; i < 4; ++i) {
+        chars[i] = DecodeChar(buf_input[i]);
+        if (chars[i] == DECODE_ERROR)
+            return 0;
+    }
 
-	unsigned char char1_aux = char1 << 2;
+    unsigned char char1_aux = chars[0] << 2;
 	//Tomo los 2 ultimos bits de char2
-	unsigned char char2_aux = char2 >> 4;
+    unsigned char char2_aux = chars[1] >> 4;
 	char1_aux = char1_aux | char2_aux;
-	return_buff[0] = char1_aux;
+    buf_output[0] = char1_aux;
 
 	//Tomo los ultimos 4b del char2 y los 4b primeros del char3
-	char1_aux = char2 << 4;
-	char2_aux = char3 >> 2;
+    char1_aux = chars[1] << 4;
+    char2_aux = chars[2] >> 2;
 	char2_aux = char1_aux | char2_aux;
-	return_buff[1] = char2_aux;
+    buf_output[1] = char2_aux;
 
 	//Tomo los ultimos 2b del char3 + los bits del char4
-	char1_aux = char3 << 6;
-	return_buff[2] = char1_aux | char4;
-	return return_buff;
+    char1_aux = chars[2] << 6;
+    buf_output[2] = char1_aux | chars[3];
+    return 1;
 }

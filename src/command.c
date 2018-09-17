@@ -3,12 +3,6 @@
 //
 
 #include "command.h"
-#include "file.h"
-#include "encode.h"
-
-#include <stdio.h>
-#include <memory.h>
-#include <string.h>
 
 void CommandHelp(){
     printf("Options:\n");
@@ -82,14 +76,38 @@ char CommandProcess(CommandOptions *opt) {
 }
 
 char _CommandEncodeDecode(CommandOptions *opt) {
-    unsigned char buffer_in[3];
-    unsigned char buffer_out[4];
+    unsigned char buf_decoded[3];
+    unsigned char buf_encoded[4];
     if(opt->encode_opt == CMD_ENCODE){
         while(!FileEofReached(&opt->input)){
-            memset(buffer_in, 0, 3);
-            unsigned int read = FileRead(&opt->input, buffer_in, 3);
-            Encode(buffer_in, read, buffer_out);
-            FileWrite(&opt->output, buffer_out, 4);
+            memset(buf_decoded, 0, 3);
+            unsigned int read = FileRead(&opt->input, buf_decoded, 3);
+            if (read > 0) {
+                Encode(buf_decoded, read, buf_encoded);
+                FileWrite(&opt->output, buf_encoded, 4);
+            }
+        }
+    }
+    if (opt->encode_opt == CMD_DECODE) {
+        while (!FileEofReached(&opt->input) && !CommandHasError(opt)) {
+            unsigned int read = FileRead(&opt->input, buf_encoded, 4);
+            if (read > 0) {   // Solo es 0 si alcance el EOF
+                if (read != 4) {  //Siempre debo leer 4 sino el formato es incorrecto
+                    fprintf(stderr, "Longitud de archivo no es multiplo de 4\n");
+                    CommandSetError(opt);
+                } else {
+                    if (Decode(buf_encoded, buf_decoded)) {
+                        FileWrite(&opt->output, buf_decoded, 3);
+                    } else {
+                        fprintf(stderr, "Caracteres invalidos en archivo codificado: ");
+                        for (unsigned int i = 0; i < 4; ++i)
+                            fprintf(stderr, "%c", buf_encoded[i]);
+                        CommandSetError(opt);
+                    }
+                }
+            }
+
+
         }
     }
     return opt->error;

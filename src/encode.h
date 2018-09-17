@@ -1,14 +1,8 @@
 //
 // Created by lucasveron on 14/09/18
 //
-
-#include <stdio.h>
-
-/**
- * Construye el TDA. Debe llamarse al principio.
- * Post: TDA construido.
- */
-void EncodeConstruct();
+#ifndef TP0_ENCODE_H
+#define TP0_ENCODE_H
 
 /**
  * Retorna la representación en int del char
@@ -24,6 +18,10 @@ unsigned char DecodeChar(char toDecode);
 void Encode(const unsigned char* buffer, unsigned int length, unsigned char* output);
 
 /**
- * Decodifica la entrada en Base64.
+ * Retorna un buffer de 3 aracteres con el decode de 4 caracteres en base64.
+ * Pre: el buffer input contiene 4 caracteres. El buffer output tiene por lo menos 3 caracteres
+ * Post: retorna un buffer de 3 byte con los caracteres en ASCII. retorna 0 si error 1 si ok
  */
-char* Decode(char* toDecode);
+unsigned char Decode(unsigned char *buf_input, unsigned char *buf_output);
+
+#endif //TP0_ENCODE_H

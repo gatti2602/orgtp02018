@@ -8,13 +8,9 @@
 #define TRUE 1
 
 
-#include <stdio.h>
-#include <string.h>
 #include <getopt.h>
 
 #include "command.h"
-#include "file.h"
-#include "encode.h"
 
 /*enum ParameterState {
 	 OKEY = 0, INCORRECT_QUANTITY_PARAMS = 1, INCORRECT_MENU = 2, ERROR_FILE = 3, ERROR_MEMORY = 4
