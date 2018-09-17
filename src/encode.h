@@ -14,12 +14,14 @@ void EncodeConstruct();
  * Retorna la representación en int del char
  * en la tabla.
  */
-int DecodeChar(char toDecode);
+unsigned char DecodeChar(char toDecode);
 
 /**
- * Retorna la conversión en Base64 de la entrada.
+ * Recibe 3 caracteres en buffer y los convierte en 4 caracteres codificados en output.
+ * Pre: el buffer contiene length caracteres (1 a 3) y todos los caracteres son validos
+ * Post: retorna un buffer de 4 byte con los caracteres en base64.
  */
-char* Encode(char* toEncode);
+void Encode(const unsigned char* buffer, unsigned int length, unsigned char* output);
 
 /**
  * Decodifica la entrada en Base64.

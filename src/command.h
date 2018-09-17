@@ -8,9 +8,9 @@
 
 #include "file.h"
 
-#define CMD_ENCODE 1;
-#define CMD_DECODE 0;
-#define CMD_NOENCODE 2;
+#define CMD_ENCODE 1
+#define CMD_DECODE 0
+#define CMD_NOENCODE 2
 #define FALSE 0
 #define TRUE 1
 

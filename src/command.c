@@ -4,9 +4,11 @@
 
 #include "command.h"
 #include "file.h"
+#include "encode.h"
 
 #include <stdio.h>
 #include <memory.h>
+#include <string.h>
 
 void CommandHelp(){
     printf("Options:\n");
@@ -80,16 +82,16 @@ char CommandProcess(CommandOptions *opt) {
 }
 
 char _CommandEncodeDecode(CommandOptions *opt) {
-    //TODO ajustar tamaño de buffer
-    unsigned char buffer[50];
-    unsigned int length = 50;
-
-    while(!FileEofReached(&opt->input)){
-        unsigned int read = FileRead(&opt->input, buffer, length);
-        //TODO: Implementar operacion de encode/decode
-        FileWrite(&opt->output, buffer, read);
+    unsigned char buffer_in[3];
+    unsigned char buffer_out[4];
+    if(opt->encode_opt == CMD_ENCODE){
+        while(!FileEofReached(&opt->input)){
+            memset(buffer_in, 0, 3);
+            unsigned int read = FileRead(&opt->input, buffer_in, 3);
+            Encode(buffer_in, read, buffer_out);
+            FileWrite(&opt->output, buffer_out, 4);
+        }
     }
-
     return opt->error;
 }
 
