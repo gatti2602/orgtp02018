@@ -138,7 +138,6 @@ void executeDecode(File* input, File* output) {
 */
 
 int main(int argc, char** argv) {
-
     struct option arg_long[] = {
             {"input",   required_argument,  NULL,  'i'},
             {"output",  required_argument,  NULL,  'o'},
@@ -149,9 +148,13 @@ int main(int argc, char** argv) {
     char arg_opt_str[] = "i:o:a:hV";
     int arg_opt;
     int arg_opt_idx = 0;
+    char should_finish = FALSE;
 
     CommandOptions cmd_opt;
     CommandCreate(&cmd_opt);
+
+    if(argc == 1)
+        CommandSetError(&cmd_opt);
 
     while((arg_opt =
             getopt_long(argc, argv, arg_opt_str, arg_long,&arg_opt_idx)) != -1){
@@ -164,23 +167,30 @@ int main(int argc, char** argv) {
                 break;
         	case 'h':
         		CommandHelp();
-        		return 0;
+                should_finish = TRUE;
+                break;
         	case 'V':
         		CommandVersion();
-        		return 0;
+                should_finish = TRUE;
+                break;
         	case 'a':
         	    CommandSetEncodeOpt(&cmd_opt, optarg);
 				break;
         	default:
         		CommandSetError(&cmd_opt);
-        		CommandHelp();
         		break;
         }
     }
-    if(!CommandHasError(&cmd_opt))
+
+    if(should_finish)
+        return 0;
+
+    if(!CommandHasError(&cmd_opt)) {
         CommandProcess(&cmd_opt);
-    else
+    } else {
+        CommandErrArg();
         return 1;
+    }
     return 0;
 
 }
