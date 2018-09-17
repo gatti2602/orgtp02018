@@ -25,8 +25,8 @@ static int encoding_table_size = 64;
  *
  */
 int decodeChar(char character){
-	int i = 0;
-	for(i;i<encoding_table_size;i++){
+	int i;
+	for(i = 0;i<encoding_table_size;i++){
 		if(encoding_table[i] == character){
 			return i;
 			break;
@@ -41,7 +41,7 @@ int decodeChar(char character){
  * Post: retorna un buffer de 4 byte con los caracteres en base64.
  */
 char* Encode(char* buffer){
-	unsigned char* buff = (char*)malloc(sizeof(char)*4);
+	char* buff = (char*)malloc(sizeof(char)*4);
 	unsigned char b1 = buffer[0];
 	unsigned char b2 = buffer[1];
 	unsigned char b3 = buffer[2];
@@ -100,7 +100,7 @@ char* Decode(char* charsBase64){
 	unsigned char char3 = decodeChar(charsBase64[2]);
 	unsigned char char4 = decodeChar(charsBase64[3]);
 
-	unsigned char* return_buff = (char*)malloc(sizeof(char)*3);
+	char* return_buff = (char*)malloc(sizeof(char)*3);
 
 	unsigned char char1_aux = char1 << 2;
 	//Tomo los 2 ultimos bits de char2

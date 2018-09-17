@@ -164,10 +164,10 @@ int main(int argc, char** argv) {
                 break;
         	case 'h':
         		CommandHelp();
-        		break;
+        		return 0;
         	case 'V':
         		CommandVersion();
-        		break;
+        		return 0;
         	case 'a':
         	    CommandSetEncodeOpt(&cmd_opt, optarg);
 				break;
