@@ -102,7 +102,8 @@ char _CommandEncodeDecode(CommandOptions *opt) {
                         FileWrite(&opt->output, buf_decoded, 3);
                     } else {
                         fprintf(stderr, "Caracteres invalidos en archivo codificado: ");
-                        for (unsigned int i = 0; i < 4; ++i)
+                        unsigned int i;
+                        for (i = 0; i < 4; ++i)
                             fprintf(stderr, "%c", buf_encoded[i]);
                         CommandSetError(opt);
                     }

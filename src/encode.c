@@ -25,7 +25,8 @@ static int encoding_table_size = 64;
  *
  */
 unsigned char DecodeChar(char character){
-	for(unsigned char i = 0;i<encoding_table_size;i++){
+	unsigned char i;
+	for(i = 0;i<encoding_table_size;i++){
 		if(encoding_table[i] == character){
 			return i;
 		}
@@ -88,8 +89,8 @@ void Encode(const unsigned char* buffer, unsigned int length, unsigned char* out
  */
 unsigned char Decode(unsigned char *buf_input, unsigned char *buf_output) {
     unsigned char chars[4];
-
-    for (unsigned int i = 0; i < 4; ++i) {
+    unsigned int i;
+    for (i = 0; i < 4; ++i) {
         chars[i] = DecodeChar(buf_input[i]);
         if (chars[i] == DECODE_ERROR)
             return 0;
