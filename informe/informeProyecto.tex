@@ -63,7 +63,7 @@
 \usepackage{pdfpages}
 \renewcommand{\appendixtocname}{Anexo}
 \renewcommand{\appendixpagename}{Anexo}
-\lhead{Proyecto Final }
+\lhead{ Organización de computadoras - TP0 }
 \rhead{\includegraphics[width=1.5 cm]{logo}}
 \author{cyn}
 \begin{document}
@@ -121,7 +121,7 @@
 \hline
 \makebox[8cm][c]{Gatti, Nicolás} & \makebox[2.5cm][c]{93570}\\
 \hline
-\textbf{Fecha de entrega: } & \hspace{0.8cm}23-11-2018\\
+\textbf{Fecha de entrega: } & \hspace{0.8cm}18-09-2018\\
 \hline
 \textbf{Fecha de aprobación: } & \\
 \hline
@@ -161,7 +161,112 @@ Ambas funciones se implementan con diversos ciclos y recorridos, así como utili
 
 Se creó un achivo \textit{\textbf{file.c}} para el manejo de los archivos a codificar/decodificar. Además se creó otro archivo llamado \textit{\textbf{command.c}} cuya función es tomar los parámetros del programa y realizar las acciones pertinentes a la misma. 
 
-\newpage
+Específicamente el programa se estructura en los siguientes pasos:
+\begin{itemize}
+	\item \underline{Análisis de las parámetros de la línea de comandos}: se analizan las opciones ingresadas por la línea de comandos utilizando la función \texttt{getopt\_long()}, la cual puede procesar cada opción que es leída de forma simplificada. Se extraen los argumentos de cada opción y se los guarda dentro de una estructura para su posterior acceso del tipo \texttt{CommandOptions} cuya definición es
+	\begin{lstlisting}[language=C]
+	typedef struct {
+    		File input;
+    		File output;
+    		const char* input_route;
+    		const char* output_route;
+    		char error;
+    		char encode_opt;
+	} CommandOptions;
+	\end{lstlisting}
+En caso de que no se encuentre alguna opción, se muestra el mensaje de ayuda al usuario para que identifique el prototipo de cómo debe ejecutar el programa.
+	
+	\item \underline{Validación de opciones:} a medida que se va analizando cada opción de la línea de comandos, se valida cada una de ellas. Si se ingresó algún parámetro no válido para el programa o si se encuentró un error se lo informa al usuario por pantalla y se aborta la ejecución del programa. Se utiliza para ello se la función \texttt{CommandErrArg()} cuyo resultado es:
+	\begin{lstlisting}[language=C]
+		fprintf(stderr, "Invalid Arguments\n");
+    		fprintf(stderr,"Options:\n");
+    		fprintf(stderr,"  -V, --version    Print version and quit.\n");
+    		fprintf(stderr,"  -h, --help       Print this information.\n");
+    		fprintf(stderr,"  -i, --input      Location of the input file.\n");
+    		fprintf(stderr,"  -o, --output     Location of the output file.\n");
+    		fprintf(stderr,"  -a, --action     Program action: encode (default) or decode.\n");
+    		fprintf(stderr,"Examples:\n");
+    		fprintf(stderr,"  tp0 -a encode -i ~/input -o ~/output\n");
+    		fprintf(stderr,"  tp0 -a decode\n");
+	\end{lstlisting}
+
+	Para el caso en que no hubo errores a la validación de los argumentos se procede a llamar a las funciones correspondientes a:
+	\begin{itemize}
+		\item \texttt{Mensaje de ayuda: } Función \texttt{CommandVersion()}
+		\item \texttt{Mensaje de versión: } Función \texttt{CommandHelp()}
+		\item \texttt{Input file : } Función \texttt{CommandSetInput()} que guarda la entrada del archivo donde será leído el texto. 
+		\item \texttt{Output file: } Función {CommandSetOutput()} que guarda la entrada del archivo de salida donde se escribirá el texto codificado.
+		\item \texttt{Acción del programa a ejecutar: } Función {CommandSetEncodeOpt()} que setea la variable $opt->encode\_opt$ indicando si es una operación de ENCODE o DECODE respectivamente.
+\end{itemize}
+
+	\item \underline{Encode/Decode:} una vez que se procesó correctamente las opciones de la línea de comandos se procede a llamar a la función \texttt{\_CommandEncodeDecode()} que ejecutará la operación de ENCODE o DECODE dependiendo del argumento pasado en la línea de comandos. 
+La operación de DECODE se ejecuta el siguiente código:
+\begin{lstlisting}[language=C]
+while (!FileEofReached(&opt->input) && !CommandHasError(opt)) {
+            unsigned int read = FileRead(&opt->input, buf_encoded, 4);
+            if (read > 0) {   // Solo es 0 si alcance el EOF
+                if (read != 4) {  //Siempre debo leer 4 sino el formato es incorrecto
+                    fprintf(stderr, "Longitud de archivo no es multiplo de 4\n");
+                    CommandSetError(opt);
+                } else {
+                    ++count;
+                    if (count == 18) { // 19 * 4 = 76 bytes
+                        unsigned char aux;
+                        FileRead(&opt->input, &aux, 1);
+                        count = 0;
+                    }
+                    if (Decode(buf_encoded, buf_decoded)) {
+                        char aux = 0;
+                        if (buf_encoded[2] == '=')
+                            ++aux;
+                        if (buf_encoded[3] == '=')
+                            ++aux;
+
+                        FileWrite(&opt->output, buf_decoded, 3 - aux);
+                    } else {
+                        fprintf(stderr, "Caracteres invalidos en archivo codificado: ");
+                        unsigned int i;
+                        for (i = 0; i < 4; ++i)
+                            fprintf(stderr, "%c", buf_encoded[i]);
+                        CommandSetError(opt);
+                    }
+                }
+            }
+
+
+        }
+	\end{lstlisting}
+	Básicamente lo que se realiza es la lectura del archivo para procesarlo teniendo en cuenta la longitud del archivo a procesar y el padding a decodificar. La función \texttt{Decode()} retorna un buffer de 3 caracteres con el decode de 4 caracteres en base64. Se debe cumplir:\\
+
+ * Pre: el buffer input contiene 4 caracteres. El buffer output tiene por lo menos 3 caracteres
+ * Post: retorna un buffer de 3 byte con los caracteres en ASCII. retorna 0 si error 1 si ok.
+
+
+La operación de ENCODE se ejecuta el siguiente código:
+\begin{lstlisting}[language=C]
+        while(!FileEofReached(&opt->input)){
+            memset(buf_decoded, 0, 3);
+            unsigned int read = FileRead(&opt->input, buf_decoded, 3);
+            if (read > 0) {
+                Encode(buf_decoded, read, buf_encoded);
+                FileWrite(&opt->output, buf_encoded, 4);
+                ++count;
+                if (count == 18) { // 19 * 4 = 76 bytes
+                    FileWrite(&opt->output, (unsigned char *) "\n", 1);
+                    count = 0;
+                }
+
+            }
+        }
+\end{lstlisting}
+Básicamente lo que se realiza es la lectura del archivo para procesarlo en la función \texttt{Encode()}e n donde recibe 3 caracteres en buffer y los convierte en 4 caracteres codificados en output. Se debe cumplir:\\
+
+ * Pre: el buffer contiene length caracteres (1 a 3) y todos los caracteres son validos
+ * Post: retorna un buffer de 4 byte con los caracteres en base64.
+
+
+	\end{itemize}
+
 
 \subsection{Parámetros del programa}
 
@@ -179,22 +284,56 @@ Se indica a continuación detalles respecto a los parámetros:
 
 \begin{itemize}
     \item Si no se explicitan -i y -o, se utilizarán stdin y stdout, respectivamente. 
-    \item -V es una opción "show and quit ". Si se explicita este parámetro, sólo se imprimirá la versión, aunque el resto de los parámetros se hayan explicitado. 
-    \item -h también es de tipo "show and quit" y se comporta de forma similar a -V.
-    \item en caso de que se use la entrada estándar (con comando echo texto | ./tp0 etc) y luego se especifique un archivo de salida con -i, prevalecerá el establecido por parámetro.
+    \item -V es una opción ``show and quit". Si se explicita este parámetro, sólo se imprimirá la versión, aunque el resto de los parámetros se hayan explicitado. 
+    \item -h también es de tipo ``show and quit " y se comporta de forma similar a -V.
+    \item en caso de que se use la entrada estándar (con comando echo texto $|$ ./tp0 -a encode) y luego se especifique un archivo de salida con -i, prevalecerá el establecido por parámetro.
 \end{itemize}
 
 \subsection{Compilación del programa}
 
-La compilación del archivo fuente se realiza de la siguiente manera
+Para obtener un ejecutable, se creó un archivo \texttt{makefile} cuyo contenido es:
+	\begin{lstlisting}[language=C]
+CC = gcc
+CFLAGS = -o0 -g -Wall -Werror -pedantic -std=c99
+
+OBJECTS = command.o encode.o file.c
+EXEC = tp0
+
+VALGRIND = valgrind --track-origins=yes --leak-check=full
+VALGRIND-V = $(VALGRIND) -v
+
+all: $(EXEC)
+
+command.o: command.c command.h
+	$(CC) $(CFLAGS) -c command.c -o command.o
+encode.o: encode.c encode.h
+	$(CC) $(CFLAGS) -c encode.c -o encode.o
+file.o: file.c file.h
+	$(CC) $(CFLAGS) -c file.c -o file.o
+
+$(EXEC): $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) main.c -o $(EXEC) -lm
+
+run: $(EXEC)
+	./$(EXEC)
+
+valgrind: $(EXEC)
+	$(VALGRIND) ./$(EXEC)
+
+valgrind-verb: $(EXEC)
+	$(VALGRIND-V) ./$(EXEC)
+
+clean:
+	rm -f *.o $(EXEC)
+	\end{lstlisting}
 
 
+Para ejecutarlo, posicionarse en el directorio \texttt{src/} y ejecutar el siguiente comando:
 \begin{lstlisting}
 $ make
 \end{lstlisting}
 
-
-Para proceder a la ejecución del programa, se debe llamar a (según el nombre elegido al compilar):
+Para proceder a la ejecución del programa, se debe llamar a:
 
 \begin{lstlisting}
 $ ./tp0
@@ -205,14 +344,18 @@ seguido de los parámetros que se desee modificar, los cuales se indicaron en la
 En caso de ser entrada estándar (stdin) se podrá ejecutar de la siguiente forma:
 
 \begin{lstlisting}
-$ echo texto | ./tp0
+$ echo texto | ./tp0 -a encode
 \end{lstlisting}
 
 También en este caso, se indican a continuación los parámetros a usar.
 
+Para el caso de hacerlo en el emulador GXemul que provee la cátedra, utilizando la máquina virtual que contiene el sistema operativo NetBSD, no se utilizó el archivo Makefile, la compilación se realizó con la herramienta \texttt{gcc}.
 \newpage
 
-\section{Pruebas con archivo bash test.sh}
+
+\section{Pruebas realizadas}
+
+\subsection{Pruebas con archivo bash test.sh}
 Se realizan corridas de prueba con el siguiente script
 
 \begin{lstlisting}
@@ -236,9 +379,6 @@ Se realizan corridas de prueba con el siguiente script
 
 El cual no presenta errores en ninguna de las corridas llevadas a cabo.
 
-\newpage
-
-\section{Pruebas realizadas}
 
 Todas las pruebas que se presentan a continuación, están codificadas en los archivos de prueba ***.txt de forma que puedan ejecutarse y comprobar los resultados obtenidos.
 
@@ -279,11 +419,22 @@ Version: 0.1
             \begin{lstlisting}
 $ ./tp0 -i archivoInvalido.txt
 
-File Open Error; No such file or directory
+Invalid Arguments
+Options:
+  -V, --version    Print version and quit.
+  -h, --help       Print this information.
+  -i, --input      Location of the input file.
+  -o, --output     Location of the output file.
+  -a, --action     Program action: encode (default) or decode.
+Examples:
+  tp0 -a encode -i ~/input -o ~/output
+  tp0 -a decode
+
 
              \end{lstlisting}  
 
 \end{itemize}
+
 
 \newpage
 
@@ -296,7 +447,7 @@ File Open Error; No such file or directory
 	\bibitem{valgrind} \emph{Valgrind} - \hyperlink{valgrind}{http://valgrind.org/}
 
 \end{thebibliography}
-
+\newpage
 %-----------------------------------%
 %									%
 %			Seccion:Fuente			%
@@ -310,8 +461,8 @@ File Open Error; No such file or directory
 
 \newpage
 
-%\subsubsection{Assembly}\label{main}
- %\newpage
+\subsubsection{Assembly}\label{main.s}
+\lstinputlisting[language=C]{../assembly/main.s}
 
 
 \end{document}
