@@ -80,6 +80,7 @@ char CommandProcess(CommandOptions *opt) {
 char _CommandEncodeDecode(CommandOptions *opt) {
     unsigned char buf_decoded[3];
     unsigned char buf_encoded[4];
+    unsigned char count = 0;
     if(opt->encode_opt == CMD_ENCODE){
         while(!FileEofReached(&opt->input)){
             memset(buf_decoded, 0, 3);
@@ -87,9 +88,16 @@ char _CommandEncodeDecode(CommandOptions *opt) {
             if (read > 0) {
                 Encode(buf_decoded, read, buf_encoded);
                 FileWrite(&opt->output, buf_encoded, 4);
+                ++count;
+                if (count == 18) { // 19 * 4 = 76 bytes
+                    FileWrite(&opt->output, (unsigned char *) "\n", 1);
+                    count = 0;
+                }
+
             }
         }
     }
+
     if (opt->encode_opt == CMD_DECODE) {
         while (!FileEofReached(&opt->input) && !CommandHasError(opt)) {
             unsigned int read = FileRead(&opt->input, buf_encoded, 4);
@@ -98,8 +106,20 @@ char _CommandEncodeDecode(CommandOptions *opt) {
                     fprintf(stderr, "Longitud de archivo no es multiplo de 4\n");
                     CommandSetError(opt);
                 } else {
+                    ++count;
+                    if (count == 18) { // 19 * 4 = 76 bytes
+                        unsigned char aux;
+                        FileRead(&opt->input, &aux, 1);
+                        count = 0;
+                    }
                     if (Decode(buf_encoded, buf_decoded)) {
-                        FileWrite(&opt->output, buf_decoded, 3);
+                        char aux = 0;
+                        if (buf_encoded[2] == '=')
+                            ++aux;
+                        if (buf_encoded[3] == '=')
+                            ++aux;
+
+                        FileWrite(&opt->output, buf_decoded, 3 - aux);
                     } else {
                         fprintf(stderr, "Caracteres invalidos en archivo codificado: ");
                         unsigned int i;
